@@ -93,9 +93,15 @@ do
 #export OPENSSLDIR="$OPENSSLDIR"
 #export HOST="$HOST"
 #bash
-    ./Configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --with-libz --with-openssl --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
-#bash
-    make >> "$LOG"
+    if [[ $(./configure --help | grep -c -- --with-openssl) -eq 0 ]]; then
+      CRYPTO_BACKEND_OPTION="--with-crypto=openssl"
+    else
+      CRYPTO_BACKEND_OPTION="--with-openssl"
+    fi
+
+    ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --with-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
+	#bash
+    make
     make -j "$BUILD_THREADS" install
 
     echo "- $PLATFORM $ARCH done!"
