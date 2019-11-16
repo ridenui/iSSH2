@@ -76,10 +76,27 @@ do
     export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
     export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION"
 
-    ./Configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --with-libz --with-openssl --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static  >> "$LOG" 2>&1
-
-    make >> "$LOG" 2>&1
-    make -j "$BUILD_THREADS" install >> "$LOG" 2>&1
+    if [[ "$ARCH" == "x86_64" ]]; then
+      SDK_PLATFORM="macosx"
+      SDK_VERSION="10.15"
+      MIN_VERSION="10.15"
+      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
+      export DEVROOT="$DEVELOPER/Platforms/$PLATFORM.platform/Developer"
+      export SDKROOT="$DEVROOT/SDKs/$PLATFORM$SDK_VERSION.sdk"
+      export CC="$CLANG"
+      export CPP="$CLANG -E"
+      export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -target x86_64-apple-ios13.0-macabi -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
+      export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION"
+    fi
+#export ARCH="$ARCH"
+#export PLATFORM_OUT="$PLATFORM_OUT"
+#export OPENSSLDIR="$OPENSSLDIR"
+#export HOST="$HOST"
+#bash
+    ./Configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --with-libz --with-openssl --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
+#bash
+    make >> "$LOG"
+    make -j "$BUILD_THREADS" install
 
     echo "- $PLATFORM $ARCH done!"
   fi

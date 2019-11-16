@@ -57,7 +57,7 @@ do
   LIPO_LIBCRYPTO="$LIPO_LIBCRYPTO $OPENSSLDIR/libcrypto.a"
 
   if [[ -f "$OPENSSLDIR/libssl.a" ]] && [[ -f "$OPENSSLDIR/libcrypto.a" ]]; then
-    echo "libssl.a and libcrypto.a for $ARCH already exist."
+    echo "$OPENSSLDIR/libssl.a and $OPENSSLDIR/libcrypto.a for $ARCH already exist."
   else
     rm -rf "$OPENSSLDIR"
     cp -R "$LIBSSLSRC"  "$OPENSSLDIR"
@@ -66,12 +66,13 @@ do
     LOG="$OPENSSLDIR/build-openssl.log"
     touch $LOG
 
-    if [[ "$SDK_PLATFORM" == "macosx" ]]; then
-      if [[ "$ARCH" == "x86_64" ]]; then
-        HOST="darwin64-x86_64-cc"
-      else
-        HOST="darwin-$ARCH-cc"
-      fi
+    if [[ "$ARCH" == "x86_64" ]]; then
+      HOST="darwin64-x86_64-cc"
+      SDK_PLATFORM="macosx"
+      SDK_VERSION="10.15"
+      MIN_VERSION="10.15"
+      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
+      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
     else
       HOST="iphoneos-cross"
       if [[ "${ARCH}" == *64 ]] || [[ "${ARCH}" == arm64* ]]; then
@@ -85,17 +86,25 @@ do
     export CC="$CLANG -arch $ARCH"
 
     CONF="$CONF -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
-
     ./Configure $HOST $CONF >> "$LOG" 2>&1
 
     if [[ "$ARCH" == "x86_64" ]]; then
       sed -ie "s!^CFLAG=!CFLAG=-isysroot $SDKROOT !" "Makefile"
     fi
-
-    make depend >> "$LOG" 2>&1
-    make -j "$BUILD_THREADS" build_libs >> "$LOG" 2>&1
+    make depend
+    make -j "$BUILD_THREADS" build_libs
+#bash
+    if [[ "$ARCH" == "x86_64" ]]; then
+      HOST="darwin64-x86_64-cc"
+      SDK_PLATFORM="iphoneos"
+      SDK_VERSION="13.2"
+      MIN_VERSION="13.0"
+      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
+      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
+    fi
 
     echo "- $PLATFORM $ARCH done!"
+
   fi
 done
 
