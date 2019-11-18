@@ -88,19 +88,25 @@ do
       export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -target x86_64-apple-ios13.0-macabi -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
       export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION"
     fi
-#export ARCH="$ARCH"
-#export PLATFORM_OUT="$PLATFORM_OUT"
-#export OPENSSLDIR="$OPENSSLDIR"
-#export HOST="$HOST"
-#bash
     if [[ $(./configure --help | grep -c -- --with-openssl) -eq 0 ]]; then
       CRYPTO_BACKEND_OPTION="--with-crypto=openssl"
     else
       CRYPTO_BACKEND_OPTION="--with-openssl"
     fi
+export ARCH="$ARCH"
+export PLATFORM_OUT="$PLATFORM_OUT"
+export OPENSSLDIR="$OPENSSLDIR"
+export HOST="$HOST"
+export CC="$CC"
+#bash
 
-    ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --with-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
-	#bash
+    ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --without-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
+    if [[ "$ARCH" != "x86_64" ]]; then
+      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" src/Makefile
+      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" tests/Makefile
+      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" Makefile
+    fi
+#bash
     make
     make -j "$BUILD_THREADS" install
 
