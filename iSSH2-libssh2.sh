@@ -82,7 +82,7 @@ do
     export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
     export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT -m$SDK_PLATFORM-version-min=$MIN_VERSION"
 
-    if [[ "$ARCH" == "x86_64" ]]; then
+    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
       SDK_PLATFORM="macosx"
       SDK_VERSION=$OSX_VERSION
       MIN_VERSION=$OSX_VERSION
@@ -125,7 +125,7 @@ done
 find $PLATFORM_OUT -name libssh2.a
 
 if [[ -f "$OSX_LIPO_SSH2" ]] && [[ "$ARCH" != "x86_64" ]]; then
-  echo "todo: lipo -create $LIPO_SSH2 $OSX_LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+  echo "todo: lipo -create $OSX_LIPO_SSH2 $LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
   touch "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
 else
   echo "todo: lipo -create $LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
