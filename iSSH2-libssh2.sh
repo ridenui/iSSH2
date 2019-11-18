@@ -41,6 +41,12 @@ echo "Extracting $LIBSSH_TAR"
 tar -zxkf "$LIBSSHDIR/$LIBSSH_TAR" -C "$LIBSSHDIR/src" --strip-components 1 2>&-
 set -e
 
+OSX_PLATFORM="macosx"
+OSX_VERSION=10.15
+OSX_PLATFORM="$(platformName "$OSX_PLATFORM" "x86_64")"
+OSX_PLATFORM_OUT="$LIBSSHDIR/${OSX_PLATFORM}_$OSX_VERSION-x86_64/install"
+OSX_LIPO_SSH2="$OSX_PLATFORM_OUT/lib/libssh2.a"
+
 echo "Building Libssh2 $LIBSSH_VERSION:"
 
 for ARCH in $ARCHS
@@ -51,8 +57,8 @@ do
   PLATFORM_OUT="$LIBSSHDIR/${PLATFORM}_$SDK_VERSION-$ARCH/install"
   LIPO_SSH2="$LIPO_SSH2 $PLATFORM_OUT/lib/libssh2.a"
 
-  if [[ -f "$PLATFORM_OUT/lib/libssh2.a" ]]; then
-    echo "libssh2.a for $ARCH already exists."
+  if [[ -f "$PLATFORM_OUT/lib/libssh2.a" ]] && [[ "$ARCH" != "x86_64" ]]; then
+    echo "libssh2.a for $ARCH already exists in $PLATFORM_OUT/lib/"
   else
     rm -rf "$PLATFORM_SRC"
     rm -rf "$PLATFORM_OUT"
@@ -78,9 +84,11 @@ do
 
     if [[ "$ARCH" == "x86_64" ]]; then
       SDK_PLATFORM="macosx"
-      SDK_VERSION="10.15"
-      MIN_VERSION="10.15"
-      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
+      SDK_VERSION=$OSX_VERSION
+      MIN_VERSION=$OSX_VERSION
+      PLATFORM="$OSX_PLATFORM"
+      PLATFORM_OUT="$OSX_PLATFORM_OUT"
+      LIPO_SSH2="$OSX_LIPO_SSH2"
       export DEVROOT="$DEVELOPER/Platforms/$PLATFORM.platform/Developer"
       export SDKROOT="$DEVROOT/SDKs/$PLATFORM$SDK_VERSION.sdk"
       export CC="$CLANG"
@@ -101,11 +109,11 @@ export CC="$CC"
 #bash
 
     ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --without-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix="$OPENSSLDIR" --disable-shared --enable-static
-    if [[ "$ARCH" != "x86_64" ]]; then
-      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" src/Makefile
-      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" tests/Makefile
-      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" Makefile
-    fi
+#    if [[ "$ARCH" != "x86_64" ]]; then
+#      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" src/Makefile
+#      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" tests/Makefile
+#      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" Makefile
+#    fi
 #bash
     make
     make -j "$BUILD_THREADS" install
@@ -114,7 +122,15 @@ export CC="$CC"
   fi
 done
 
-lipoFatLibrary "$LIPO_SSH2" "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+find $PLATFORM_OUT -name libssh2.a
+
+if [[ -f "$OSX_LIPO_SSH2" ]] && [[ "$ARCH" != "x86_64" ]]; then
+  echo "todo: lipo -create $LIPO_SSH2 $OSX_LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+  touch "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+else
+  echo "todo: lipo -create $LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+  touch "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+fi
 
 importHeaders "$LIBSSHSRC/include/" "$BASEPATH/libssh2_$SDK_PLATFORM/include"
 

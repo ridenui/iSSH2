@@ -56,8 +56,8 @@ do
   LIPO_LIBSSL="$LIPO_LIBSSL $OPENSSLDIR/libssl.a"
   LIPO_LIBCRYPTO="$LIPO_LIBCRYPTO $OPENSSLDIR/libcrypto.a"
 
-  if [[ -f "$OPENSSLDIR/libssl.a" ]] && [[ -f "$OPENSSLDIR/libcrypto.a" ]]; then
-    echo "$OPENSSLDIR/libssl.a and $OPENSSLDIR/libcrypto.a for $ARCH already exist."
+  if [[ -f "$OPENSSLDIR/libssl.a" ]] && [[ -f "$OPENSSLDIR/libcrypto.a" ]] && [[ "$ARCH" != "x86_64" ]]; then
+    echo "libssl.a and libcrypto.a for $ARCH already exist in $OPENSSLDIR"
   else
     rm -rf "$OPENSSLDIR"
     cp -R "$LIBSSLSRC"  "$OPENSSLDIR"
@@ -95,10 +95,8 @@ do
     make -j "$BUILD_THREADS" build_libs
 #bash
     if [[ "$ARCH" == "x86_64" ]]; then
-      HOST="darwin64-x86_64-cc"
       SDK_PLATFORM="iphoneos"
       SDK_VERSION="13.2"
-      MIN_VERSION="13.0"
       PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
       OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
     fi
