@@ -1,4 +1,3 @@
-TMPDIR=/var/folders/bq/gwfmj_ms3b77rq23m_y6y5sw0000gn/T/
 CFLAGS="-target x86_64-apple-ios13.0-macabi" ./iSSH2.sh --platform=iphoneos --target=macosx --min-version=10.15 --archs="x86_64"
 ./iSSH2.sh --platform=iphoneos --min-version=8.0 --archs="armv7 armv7s i386 arm64 arm64e x86_64"
 echo "Building fat file libssh2.a"
