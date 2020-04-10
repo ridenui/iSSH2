@@ -292,5 +292,5 @@ if [[ $BUILD_SSL == true ]]; then
 fi
 
 if [[ $BUILD_SSH == true ]]; then
-  "$BASEPATH/iSSH2-libssh2.sh" || echo "Never mind"
+  "$BASEPATH/iSSH2cat-libssh2.sh" || echo "Never mind"
 fi
