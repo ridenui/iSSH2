@@ -288,7 +288,7 @@ echo
 set -e
 
 if [[ $BUILD_SSL == true ]]; then
-  "$BASEPATH/iSSH2-openssl.sh" || echo "Never mind"
+  "$BASEPATH/iSSH2cat-openssl.sh" || echo "Never mind"
 fi
 
 if [[ $BUILD_SSH == true ]]; then
