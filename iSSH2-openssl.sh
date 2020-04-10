@@ -1,6 +1,6 @@
 #!/bin/bash
                                    #########
-#################################### 	 #####################################
+#################################### iSSH2 #####################################
 #                                  #########                                   #
 # Copyright (c) 2013 Tommaso Madonia. All rights reserved.                     #
 #                                                                              #
@@ -53,12 +53,11 @@ do
 
   PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
   OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
-  PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH/install"
   LIPO_LIBSSL="$LIPO_LIBSSL $OPENSSLDIR/libssl.a"
   LIPO_LIBCRYPTO="$LIPO_LIBCRYPTO $OPENSSLDIR/libcrypto.a"
 
-  if [[ -f "$OPENSSLDIR/libssl.a" ]] && [[ -f "$OPENSSLDIR/libcrypto.a" ]] && [[ "$ARCH" != "x86_64" ]]; then
-    echo "libssl.a and libcrypto.a for $ARCH already exist in $OPENSSLDIR"
+  if [[ -f "$OPENSSLDIR/libssl.a" ]] && [[ -f "$OPENSSLDIR/libcrypto.a" ]]; then
+    echo "libssl.a and libcrypto.a for $ARCH already exist."
   else
     rm -rf "$OPENSSLDIR"
     cp -R "$LIBSSLSRC"  "$OPENSSLDIR"
@@ -67,14 +66,12 @@ do
     LOG="$OPENSSLDIR/build-openssl.log"
     touch $LOG
 
-	    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
-      HOST="darwin64-x86_64-cc"
-      SDK_PLATFORM="macosx"
-      SDK_VERSION="10.15"
-      MIN_VERSION="10.15"
-      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
-      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
-      PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH/install"
+    if [[ "$SDK_PLATFORM" == "macosx" ]]; then
+      if [[ "$ARCH" == "x86_64" ]]; then
+        HOST="darwin64-x86_64-cc"
+      else
+        HOST="darwin-$ARCH-cc"
+      fi
     else
       HOST="iphoneos-cross"
       if [[ "${ARCH}" == *64 ]] || [[ "${ARCH}" == arm64* ]]; then
@@ -88,27 +85,17 @@ do
     export CC="$CLANG -arch $ARCH"
 
     CONF="$CONF -m$SDK_PLATFORM-version-min=$MIN_VERSION $EMBED_BITCODE"
-    ./Configure $HOST --prefix=$PLATFORM_OUT $CONF >> "$LOG" 2>&1
+
+    ./Configure $HOST $CONF >> "$LOG" 2>&1
 
     if [[ "$ARCH" == "x86_64" ]]; then
       sed -ie "s!^CFLAG=!CFLAG=-isysroot $SDKROOT !" "Makefile"
     fi
-    make depend
-    make -j "$BUILD_THREADS" build_libs
-    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
-      mkdir -p $PLATFORM_OUT
-      make install
-    fi
-#bash
-    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
-      SDK_PLATFORM="iphoneos"
-      SDK_VERSION="13.2"
-      PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
-      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
-    fi
+
+    make depend >> "$LOG" 2>&1
+    make -j "$BUILD_THREADS" build_libs >> "$LOG" 2>&1
 
     echo "- $PLATFORM $ARCH done!"
-
   fi
 done
 

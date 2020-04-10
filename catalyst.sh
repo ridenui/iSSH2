@@ -195,9 +195,11 @@ echo
 
 set -e
 
-./iSSH2.sh --platform=iphoneos --min-version=13.0 --archs="x86_64" --sdk-version=$SDK_VERSION
+rm -rf $TMPDIR/iSSH2
+./iSSH2.sh --platform=iphoneos --min-version=8.0 --sdk-version=$SDK_VERSION
+rm -rf ./libssh2_iphoneos/lib
+rm -rf ./openssl_iphoneos/lib
 CFLAGS="-target x86_64-apple-ios13.0-macabi" ./iSSH2cat.sh --platform=iphoneos --target=macosx --min-version=10.15 --archs="x86_64" --sdk-version=$SDK_VERSION
-./iSSH2.sh --platform=iphoneos --min-version=8.0 --archs="armv7 armv7s i386 arm64 arm64e x86_64" --sdk-version=$SDK_VERSION
 echo "Building fat files"
 mkdir -p ./libssh2_iphoneos/lib
 mkdir -p ./openssl_iphoneos/lib
@@ -206,4 +208,4 @@ lipo -info ./libssh2_iphoneos/lib/libssh2.a
 lipo -create ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/MacOSX_10.15-x86_64/install/lib/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64e/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7s/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneSimulator_$SDK_VERSION-i386/libcrypto.a -output ./openssl_iphoneos/lib/libcrypto.a
 lipo -info ./openssl_iphoneos/lib/libcrypto.a
 lipo -create ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/MacOSX_10.15-x86_64/install/lib/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64e/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7s/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneSimulator_$SDK_VERSION-i386/libssl.a -output ./openssl_iphoneos/lib/libssl.a
-lipo -info ./openssl_iphoneos/lib/libssl.a
+lipo -info ./openssl_iphoneos/lib/libssl.a && rm -rf $TMPDIR/iSSH2
