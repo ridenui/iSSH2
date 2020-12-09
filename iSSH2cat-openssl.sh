@@ -52,8 +52,8 @@ do
   fi
 
   PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
-  OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
-  PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH/install"
+  OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH"
+  PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH/install"
   LIPO_LIBSSL="$LIPO_LIBSSL $OPENSSLDIR/libssl.a"
   LIPO_LIBCRYPTO="$LIPO_LIBCRYPTO $OPENSSLDIR/libcrypto.a"
 
@@ -67,14 +67,14 @@ do
     LOG="$OPENSSLDIR/build-openssl.log"
     touch $LOG
 
-	    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
+    if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
       HOST="darwin64-x86_64-cc"
       SDK_PLATFORM="macosx"
-      SDK_VERSION="10.15"
+      SDK_VERSION="11.0"
       MIN_VERSION="10.15"
       PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
-      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
-      PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH/install"
+      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH"
+      PLATFORM_OUT="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH/install"
     else
       HOST="iphoneos-cross"
       if [[ "${ARCH}" == *64 ]] || [[ "${ARCH}" == arm64* ]]; then
@@ -104,7 +104,7 @@ do
       SDK_PLATFORM="iphoneos"
       SDK_VERSION="13.2"
       PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
-      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$SDK_VERSION-$ARCH"
+      OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH"
     fi
 
     echo "- $PLATFORM $ARCH done!"
