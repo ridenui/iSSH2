@@ -23,6 +23,12 @@
 # THE SOFTWARE.                                                                #
 ################################################################################
 
+XCODE_VERSION=`xcodebuild -version | grep Xcode | cut -d' ' -f2`
+
+version () {
+  printf "%02d%02d%02d" ${1//./ }
+}
+
 source "$BASEPATH/iSSH2-commons"
 
 set -e
@@ -69,7 +75,7 @@ do
     if [[ "$SDK_PLATFORM" == "macosx" ]]; then
       if [[ "$ARCH" == "x86_64" ]]; then
         HOST="darwin64-x86_64-cc"
-      elif [[ "$ARCH" == "arm64" ]] && [[ $SDK_VERSION > 10.15 ]]; then
+      elif [[ "$ARCH" == "arm64" ]] && [[ $(version "$XCODE_VERSION") -ge $(version "12.0") ]]; then
         HOST="darwin64-arm64-cc"
       else
         HOST="darwin-$ARCH-cc"
