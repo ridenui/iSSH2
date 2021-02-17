@@ -70,7 +70,7 @@ do
     if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
       HOST="darwin64-x86_64-cc"
       SDK_PLATFORM="macosx"
-      SDK_VERSION="11.0"
+      SDK_VERSION="11.1"
       MIN_VERSION="10.15"
       PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
       OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH"
@@ -102,7 +102,8 @@ do
 #bash
     if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
       SDK_PLATFORM="iphoneos"
-      SDK_VERSION="13.2"
+      echo "SDK_VERSION = $SDK_VERSION"
+      SDK_VERSION="14.4"
       PLATFORM="$(platformName "$SDK_PLATFORM" "$ARCH")"
       OPENSSLDIR="$LIBSSLDIR/${PLATFORM}_$MIN_VERSION-$ARCH"
     fi

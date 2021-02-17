@@ -84,7 +84,7 @@ do
 
     if [[ "$ARCH" == "x86_64" ]] && [[ "$MIN_VERSION" == "10.15" ]]; then
       SDK_PLATFORM="macosx"
-      SDK_VERSION=11.0
+      SDK_VERSION=11.1
       MIN_VERSION=10.15
       PLATFORM="$OSX_PLATFORM"
       PLATFORM_OUT="$OSX_PLATFORM_OUT"
