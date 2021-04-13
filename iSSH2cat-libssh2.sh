@@ -111,15 +111,15 @@ echo OPENSSLDIR = $OPENSSLDIR
 echo ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --without-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix=$TMPDIR/iSSH2/openssl-$LIBSSL_VERSION/MacOSX_$MIN_VERSION-x86_64/install --disable-shared --enable-static
 #bash
 
-    ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --without-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix=$TMPDIR/iSSH2/openssl-$LIBSSL_VERSION/MacOSX_$MIN_VERSION-x86_64/install --disable-shared --enable-static
+    ./configure --host=$HOST --prefix="$PLATFORM_OUT" --disable-debug --disable-dependency-tracking --disable-silent-rules --disable-examples-build --without-libz $CRYPTO_BACKEND_OPTION --with-libssl-prefix=$TMPDIR/iSSH2/openssl-$LIBSSL_VERSION/MacOSX_$MIN_VERSION-x86_64/install --disable-shared --enable-static >> "$LOG" 2>&1
 #    if [[ "$ARCH" != "x86_64" ]]; then
 #      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" src/Makefile
 #      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" tests/Makefile
 #      perl -pi.bak -e "s/-miphoneos-version-min=10.15/-target $ARCH-apple-ios13.0-macabi -miphoneos-version-min=10.15/gi" Makefile
 #    fi
 #bash
-    make
-    make -j "$BUILD_THREADS" install
+    make >> "$LOG" 2>&1
+    make -j "$BUILD_THREADS" install >> "$LOG" 2>&1
 
     echo "- $PLATFORM $ARCH done!"
   fi
@@ -131,10 +131,9 @@ if [[ -f "$OSX_LIPO_SSH2" ]] && [[ "$ARCH" != "x86_64" ]]; then
   echo "todo: lipo -create $OSX_LIPO_SSH2 $LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
   touch "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
 else
-  echo "todo: lipo -create $LIPO_SSH2 -output $BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
-  touch "$BASEPATH/libssh2_$SDK_PLATFORM/lib/libssh2.a"
+  echo "todo: lipo -create $LIPO_SSH2 -output $BASEPATH/libssh2_iphoneos/lib/libssh2.a"
 fi
 
 importHeaders "$LIBSSHSRC/include/" "$BASEPATH/libssh2_$SDK_PLATFORM/include"
 
-echo "Building done."
+echo "Building Mac Catalyst libssh2 lib done."
