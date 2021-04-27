@@ -1,1 +1,1 @@
-./iSSH2.sh --platform=macos --min-version=10.15
+./iSSH2.sh --platform=macosx --min-version=10.15

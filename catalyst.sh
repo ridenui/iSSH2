@@ -201,7 +201,7 @@ rm -rf ./libssh2_iphoneos/lib
 rm -rf ./openssl_iphoneos/lib
 OSX_MIN_VERSION="10.15"
 OSX_SDK_PLATFORM="MacOSX"
-OSX_SDK_VERSION="11.1"
+OSX_SDK_VERSION=`xcrun --sdk macosx --show-sdk-version`
 echo CFLAGS="-target x86_64-apple-ios13.0-macabi" ./iSSH2cat.sh --platform=iphoneos --target=macosx --min-version=$OSX_MIN_VERSION --archs="x86_64" --sdk-version=$SDK_VERSION
 CFLAGS="-target x86_64-apple-ios13.0-macabi" ./iSSH2cat.sh --platform=iphoneos --target=macosx --min-version=$OSX_MIN_VERSION --archs="x86_64" --sdk-version=$SDK_VERSION
 echo "Building fat files"
