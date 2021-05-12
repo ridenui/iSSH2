@@ -48,6 +48,13 @@ OSX_PLATFORM_OUT="$LIBSSHDIR/${OSX_PLATFORM}_$OSX_VERSION-x86_64/install"
 OSX_LIPO_SSH2="$OSX_PLATFORM_OUT/lib/libssh2.a"
 
 echo "Building Libssh2 $LIBSSH_VERSION:"
+cd "$TMPDIR/iSSH2/libssh2-$LIBSSH_VERSION"
+git clone https://github.com/libssh2/libssh2
+cp -pR libssh2/* src/
+rm -rf libssh2
+cd $BASEPATH
+pwd
+#bash
 
 for ARCH in $ARCHS
 do
