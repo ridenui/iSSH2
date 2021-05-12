@@ -42,13 +42,6 @@ tar -zxkf "$LIBSSHDIR/$LIBSSH_TAR" -C "$LIBSSHDIR/src" --strip-components 1 2>&-
 set -e
 
 echo "Building Libssh2 $LIBSSH_VERSION:"
-cd "$TMPDIR/iSSH2/libssh2-$LIBSSH_VERSION"
-git clone https://github.com/libssh2/libssh2
-cp -pR libssh2/* src/
-rm -rf libssh2
-cd $BASEPATH
-pwd
-#bash
 
 for ARCH in $ARCHS
 do
