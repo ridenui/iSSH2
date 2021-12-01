@@ -68,7 +68,7 @@ importHeaders () {
   echo "Copying headers..."
   rm -rf "$output"
   mkdir -p "$output"
-  cp -RL "$input" "$output"
+  cp -RL "$input" "$output/.."
 }
 
 platformName () {
