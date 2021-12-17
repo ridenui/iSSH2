@@ -48,8 +48,8 @@ cleanupAll () {
 
 getLibssh2Version () {
   if type git >/dev/null 2>&1; then
-    LIBSSH_VERSION=`git ls-remote --tags https://github.com/libssh2/libssh2.git | egrep "libssh2-[0-9]+\.[1-9][0-9](\.[0-9])*[a-zA-Z]?$" | cut -f 2 -d - | sort -t . -r | head -n 1`
-    LIBSSH_AUTO=true
+    LIBSSH2_VERSION=`git ls-remote --tags https://github.com/libssh2/libssh2.git | egrep "libssh2-[0-9]+\.[1-9][0-9](\.[0-9])*[a-zA-Z]?$" | cut -f 2 -d - | sort -t . -r | head -n 1`
+    LIBSSH2_AUTO=true
   else
     >&2 echo "Install git to automatically get the latest Libssh2 version or use the --libssh2 argument"
     >&2 echo
@@ -70,6 +70,18 @@ getOpensslVersion () {
   fi
 }
 
+getLibsshVersion () {
+  if type git >/dev/null 2>&1; then
+    LIBSSH_VERSION=`git ls-remote --tags git@gitlab.com:libssh/libssh-mirror.git | egrep -E "libssh-\d+\.\d+\.\d+$" -o | egrep -E -o "\d+\.\d+\.\d+$" | sort -r -t . | head -n 1`
+    LIBSSH_AUTO=true
+  else
+    >&2 echo "Install git to automatically get the latest Libssh version or use the --libssh argument"
+    >&2 echo
+    >&2 echo "Try '$SCRIPTNAME --help' for more information."
+    exit 2
+  fi
+}
+
 getBuildSetting () {
   echo "${1}" | grep -i "^\s*${2}\s*=\s*" | cut -d= -f2 | xargs echo -n
 }
@@ -82,7 +94,7 @@ usageHelp () {
   echo
   echo "Usage: $SCRIPTNAME.sh [options]"
   echo
-  echo "This script download and build OpenSSL and Libssh2 libraries."
+  echo "This script download and build OpenSSL, Libssh2 and Libssh libraries."
   echo
   echo "Options:"
   echo "  -a, --archs=[ARCHS]       build for [ARCHS] architectures"
@@ -90,6 +102,7 @@ usageHelp () {
   echo "  -v, --min-version=VERS    set platform minimum version to VERS"
   echo "  -s, --sdk-version=VERS    use SDK version VERS"
   echo "  -l, --libssh2=VERS        download and build Libssh2 version VERS"
+  echo "  -L, --libssh=VERS         download and build Libssh version VERS"
   echo "  -o, --openssl=VERS        download and build OpenSSL version VERS"
   echo "  -x, --xcodeproj=PATH      get info from the project (requires TARGET)"
   echo "  -t, --target=TARGET       get info from the target (requires XCODEPROJ)"
@@ -109,6 +122,7 @@ usageHelp () {
 
 export SDK_VERSION=
 export LIBSSH_VERSION=
+export LIBSSH2_VERSION=
 export LIBSSL_VERSION=
 export MIN_VERSION=
 export ARCHS=
@@ -118,6 +132,7 @@ export EMBED_BITCODE="-fembed-bitcode"
 BUILD_OSX=false
 BUILD_SSL=true
 BUILD_SSH=true
+BUILD_SSH2=true
 CLEAN_BUILD=true
 
 XCODE_PROJECT=
@@ -129,8 +144,9 @@ while getopts 'a:p:l:o:v:s:x:t:h-' OPTION ; do
     p) SDK_PLATFORM="$OPTARG" ;;
     v) MIN_VERSION="$OPTARG" ;;
     s) SDK_VERSION="$OPTARG" ;;
-    l) LIBSSH_VERSION="$OPTARG" ;;
+    l) LIBSSH2_VERSION="$OPTARG" ;;
     o) LIBSSL_VERSION="$OPTARG" ;;
+    L) LIBSSH_VERSION="$OPTARG" ;;
     x) XCODE_PROJECT="$OPTARG" ;;
     t) TARGET_NAME="$OPTARG" ;;
     h) usageHelp ;;
@@ -249,6 +265,11 @@ ARCHS="$(echo "$ARCHS" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 
 LIBSSH_AUTO=false
 if [[ -z "$LIBSSH_VERSION" ]]; then
+  getLibsshVersion
+fi
+
+LIBSSH2_AUTO=false
+if [[ -z "$LIBSSH2_VERSION" ]]; then
   getLibssh2Version
 fi
 
@@ -272,15 +293,22 @@ export DEVELOPER=`xcode-select --print-path`
 export BASEPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export TEMPPATH="$TMPDIR$SCRIPTNAME"
 export LIBSSLDIR="$TEMPPATH/openssl-$LIBSSL_VERSION"
-export LIBSSHDIR="$TEMPPATH/libssh2-$LIBSSH_VERSION"
+export LIBSSH2DIR="$TEMPPATH/libssh2-$LIBSSH_VERSION"
+export LIBSSHDIR="$TEMPPATH/libssh-$LIBSSH_VERSION"
 
 #Env
 
 echo
-if [[ $LIBSSH_AUTO == true ]]; then
-  echo "Libssh2 version: $LIBSSH_VERSION (Automatically detected)"
+if [[ $LIBSSH2_AUTO == true ]]; then
+  echo "Libssh2 version: $LIBSSH2_VERSION (Automatically detected)"
 else
-  echo "Libssh2 version: $LIBSSH_VERSION"
+  echo "Libssh2 version: $LIBSSH2_VERSION"
+fi
+
+if [[ $LIBSSH_AUTO == true ]]; then
+  echo "Libssh version: $LIBSSH_VERSION (Automatically detected)"
+else
+  echo "Libssh version: $LIBSSH_VERSION"
 fi
 
 if [[ $LIBSSL_AUTO == true ]]; then
@@ -310,9 +338,13 @@ if [[ $BUILD_SSL == true ]]; then
 fi
 
 if [[ $BUILD_SSH == true ]]; then
+  "$BASEPATH/iSSH2-libssh.sh" || cleanupFail $CLEAN_BUILD
+fi
+
+if [[ $BUILD_SSH2 == true ]]; then
   "$BASEPATH/iSSH2-libssh2.sh" || cleanupFail $CLEAN_BUILD
 fi
 
-if [[ $BUILD_SSL == true ]] || [[ $BUILD_SSH == true ]]; then
+if [[ $BUILD_SSL == true ]] || [[ $BUILD_SSH2 == true ]] || [[ $BUILD_SSH == true ]]; then
   cleanupAll $CLEAN_BUILD
 fi
