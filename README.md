@@ -3,6 +3,7 @@
 iSSH2 is a bash script for compiling Libssh2 (and OpenSSL) for iOS, macOS, watchOS and tvOS.
 
 - Libssh2: [Website](http://www.libssh2.org) | [Documentation](http://www.libssh2.org/docs.html) | [Changelog](http://www.libssh2.org/changes.html)
+- Libssh: [Website](http://www.libssh.org) | [Documentation](https://api.libssh.org/stable/) | [Changelog](https://gitlab.com/libssh/libssh-mirror/-/blob/master/ChangeLog)
 - OpenSSL: [Website](http://www.openssl.org) | [Documentation](http://www.openssl.org/docs/) | [Changelog](http://www.openssl.org/news/)
 
 ## Requirements
@@ -12,14 +13,15 @@ iSSH2 is a bash script for compiling Libssh2 (and OpenSSL) for iOS, macOS, watch
 
 #### Optional Requirements
 
-- git (required for automatically detection of latest version of Libssh2/OpenSSL)
+- git (required for automatically detection of latest version of Libssh2/Libssh/OpenSSL)
 
 ## Tested with
 
-- Xcode: 11.2
+- Xcode: 11.2, 13.2
 - iOS SDK: 13.2
-- Libssh2: 1.9.0
-- OpenSSL: 1.1.1d
+- Libssh2: 1.9.0, 1.10.0
+- Libssh: 0.9.6
+- OpenSSL: 1.1.1d, 1.1.1m
 - Architectures: arm64 arm64e x86_64
 
 ## How to use
